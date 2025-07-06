@@ -28,6 +28,55 @@ session_start();
 </head>
 <body>
   <!-- Navbar Start -->
+<nav class="navbar navbar-expand-lg navbar-dark" id="navbar">
+  <div class="container">
+    <a class="navbar-brand" href="#"><img src="images/icon.png" alt="FlexiRide Logo" width="45" height="45" class="d-inline-block align-text-top me-2">FLEXIRIDE</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
+        <li class="nav-item"><a class="nav-link" href="#pricing">Pricing</a></li>
+        <li class="nav-item"><a class="nav-link" href="#vehicles">Vehicles</a></li>
+        <li class="nav-item"><a class="nav-link" href="#review">Testimonials</a></li>
+        <li class="nav-item"><a class="nav-link" href="#team">Our Team</a></li>
+        <li class="nav-item"><a class="nav-link" href="#contact">Contact Us</a></li>
+      </ul>
+
+      <?php if (isset($_SESSION['user_id'])): 
+          require 'db.php'; // make sure DB is connected
+          $uid = $_SESSION['user_id'];
+          $stmt = $conn->prepare("SELECT name, profile_picture FROM users WHERE id = ?");
+          $stmt->bind_param("i", $uid);
+          $stmt->execute();
+          $result = $stmt->get_result();
+          $user = $result->fetch_assoc();
+          $profile_img = !empty($user['profile_picture']) ? $user['profile_picture'] : 'images/default_user.png';
+      ?>
+      <!-- Profile Dropdown -->
+      <div class="dropdown ms-lg-3">
+        <a class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+          <img src="uploads/<?= $user['profile_picture'] ?>" alt="Profile" class="rounded-circle me-2" width="40" height="40">
+          <span><?= explode(' ', $user['name'])[0] ?></span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="user/dashboard.php">Dashboard</a></li>
+          <li><a class="dropdown-item" href="booking_summary.php">My Bookings</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="user/logout.php">Logout</a></li>
+        </ul>
+      </div>
+      <?php else: ?>
+        <button class="btn btn-outline-light ms-lg-3" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+      <?php endif; ?>
+
+    </div>
+  </div>
+</nav>
 
   <!-- Navbar End -->
   <!-- Home Section-->
