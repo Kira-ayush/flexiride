@@ -747,9 +747,6 @@ session_start();
           <div class="mb-3">
             <input type="password" name="password" class="form-control rounded-pill px-4 py-2" placeholder="Password" required>
           </div>
-          <div class="text-end mb-2">
-            <a href="#" class="text-decoration-none small text-muted">Forgot password?</a><br>
-          </div>
         </div>
         <div class="modal-footer d-flex flex-column gap-2 px-4 pb-4">
           <button type="submit" class="btn w-100 rounded-pill text-white" style="background-color: teal;">Log in</button>

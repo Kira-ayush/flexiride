@@ -16,7 +16,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($result->num_rows === 1) {
             $user = $result->fetch_assoc();
 
-            // Verify password
             if (password_verify($password, $user['password'])) {
                 // Store user data in session
                 $_SESSION['user_id'] = $user['id'];
@@ -24,14 +23,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $_SESSION['user_email'] = $user['email'];
                 $_SESSION['user_image'] = !empty($user['profile_picture']) ? $user['profile_picture'] : 'images/default.png';
 
-                // Smart redirect if user was trying to access a protected page
-                if (!empty($_SESSION['redirect_after_login'])) {
-                    $redirect_url = $_SESSION['redirect_after_login'];
-                    unset($_SESSION['redirect_after_login']);
-                    header("Location: $redirect_url");
-                } else {
-                    header("Location: ../index.php");
-                }
+                // Redirect to original page after login
+                $redirect_url = $_SESSION['redirect_after_login'] ?? '../index.php';
+                unset($_SESSION['redirect_after_login']);
+                header("Location: $redirect_url");
                 exit;
             } else {
                 $_SESSION['login_error'] = "Invalid password.";
@@ -43,8 +38,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION['login_error'] = "Please fill in all fields.";
     }
 
-    // Redirect back to login if failed
-    header("Location: ../index.php");
+    // Redirect back to login page with error
+    $back = $_SESSION['redirect_after_login'] ?? '../index.php';
+    header("Location: $back");
     exit;
 } else {
     header("Location: ../index.php");

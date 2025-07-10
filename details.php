@@ -71,7 +71,7 @@ if (!$vehicle) {
     <!-- Image and Info -->
     <div class="row g-4 align-items-start mb-4">
         <div class="col-md-6" data-aos="fade-right">
-            <img src="uploads/<?= htmlspecialchars($vehicle['image_path']) ?>" alt="<?= htmlspecialchars($vehicle['name']) ?>" class="vehicle-img">
+            <img src="uploads/<?= htmlspecialchars($vehicle['image_path']) ?>" alt="<?= htmlspecialchars($row['name']) ?>" class="vehicle-img">
         </div>
         <div class="col-md-6" data-aos="fade-left">
             <div class="info-box">

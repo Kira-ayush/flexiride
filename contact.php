@@ -8,27 +8,55 @@
   <!-- Bootstrap & Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+  background-color: #fff4ee;
+  font-family: 'Segoe UI', sans-serif;
+  padding-top: 100px;
+}
+    .nav-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+  z-index: 1000;
+  
+}
+
+.navbar-container {
+  background: #0d1b2a;
+  display: flex;
+  gap: 30px;
+  padding: 8px 24px;
+  border-radius: 12px;
+}
+
+.btn {
+  color: #fff;
+  text-decoration: none;
+  padding: 6px 14px;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+  </style>
 </head>
-<body class="bg-light">
+<body >
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container">
-    <a class="navbar-brand fw-bold" href="index.php">
-      <img src="images/icon.png" width="40" height="40" class="me-2">FLEXIRIDE
-    </a>
-    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a href="index.php" class="nav-link">Home</a></li>
-        <li class="nav-item"><a href="our_vehicles.php" class="nav-link">Vehicles</a></li>
-        <li class="nav-item"><a href="contact.php" class="nav-link active">Contact</a></li>
-      </ul>
-    </div>
+<header class="nav-wrapper">
+  <div class="navbar-container">
+    <a href="index.php" class="btn">Home</a>
+    <a href="our_vehicles.php" class="btn">Vehicles</a>
+    <a href="contact.php" class="btn ">Contact</a>
+    <a href="about.php" class="btn ">About</a>
   </div>
-</nav>
+</header>
 
 <!-- Contact Section -->
 <section class="py-5">
