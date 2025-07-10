@@ -28,6 +28,8 @@ session_start();
 </head>
 <body>
   <!-- Navbar Start -->
+  <!-- Navbar Start -->
+   <header>
 <nav class="navbar navbar-expand-lg navbar-dark" id="navbar">
   <div class="container">
     <a class="navbar-brand" href="#"><img src="images/icon.png" alt="FlexiRide Logo" width="45" height="45" class="d-inline-block align-text-top me-2">FLEXIRIDE</a>
@@ -77,6 +79,7 @@ session_start();
     </div>
   </div>
 </nav>
+</header>
 
   <!-- Navbar End -->
   <!-- Home Section-->
