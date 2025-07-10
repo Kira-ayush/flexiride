@@ -1,222 +1,183 @@
 <?php
 require_once "db.php";
-
-// Pagination config
-$limit = 6;
-$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
-$offset = ($page - 1) * $limit;
-
-// Search/filter/sort
-$search = $_GET['search'] ?? '';
-$category = $_GET['category'] ?? '';
-$subcategory = $_GET['subcategory'] ?? '';
-$sort = $_GET['sort'] ?? '';
-
-$conditions = [];
-$params = [];
-$types = '';
-
-if ($search) {
-    $conditions[] = "name LIKE ?";
-    $params[] = "%$search%";
-    $types .= 's';
-}
-if ($category) {
-    $conditions[] = "category = ?";
-    $params[] = $category;
-    $types .= 's';
-}
-if ($subcategory) {
-    $conditions[] = "subcategory = ?";
-    $params[] = $subcategory;
-    $types .= 's';
-}
-$whereSQL = $conditions ? ('WHERE ' . implode(' AND ', $conditions)) : '';
-
-$orderSQL = "ORDER BY id DESC";
-if ($sort == 'price_asc') $orderSQL = "ORDER BY price_per_day ASC";
-if ($sort == 'price_desc') $orderSQL = "ORDER BY price_per_day DESC";
-if ($sort == 'name_asc') $orderSQL = "ORDER BY name ASC";
-if ($sort == 'name_desc') $orderSQL = "ORDER BY name DESC";
-
-// Count total
-$countSQL = "SELECT COUNT(*) FROM vehicles $whereSQL";
-$stmt = $conn->prepare($countSQL);
-if ($params) $stmt->bind_param($types, ...$params);
-$stmt->execute(); $stmt->bind_result($total); $stmt->fetch(); $stmt->close();
-$totalPages = ceil($total / $limit);
-
-// Fetch data
-$dataSQL = "SELECT * FROM vehicles $whereSQL $orderSQL LIMIT ? OFFSET ?";
-$stmt = $conn->prepare($dataSQL);
-if ($params) {
-    $types .= 'ii'; $params[] = $limit; $params[] = $offset;
-    $stmt->bind_param($types, ...$params);
-} else {
-    $stmt->bind_param("ii", $limit, $offset);
-}
-$stmt->execute();
-$result = $stmt->get_result();
+$vehicles = $conn->query("SELECT * FROM vehicles");
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Our Vehicles | FlexiRide</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
-    <style>
-        body { 
-            background-color: #f4f6f8; 
-            }
-        
-        .card-img-top {
-            object-fit: contain;
-            height: 220px;
-            padding: 10px;
-            background-color: #fff;
-            }
-
-        .category-badge {
-             font-size: 0.8rem; 
-            }
-        .card:hover {
-                    transform: translateY(-6px);
-                    box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
-                    transition: 0.3s ease;
-                   }
-        .card-title {
-            font-weight: 600;
-        }
-        .badge {
-            font-size: 0.75rem;
-        }
-
-    </style>
+  <meta charset="UTF-8">
+  <title>Our Vehicles | FlexiRide</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="css/our_vehiclesstyle.css">
 </head>
 <body>
-<!-- Navigation Bar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
-  <div class="container">
-    <a class="navbar-brand fw-bold" href="index.php">FlexiRide</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+<div class="nav-wrapper">
+  <div class="navbar-container">
+    <a href="index.php" class="btn">Home</a>
+    <a href="our_vehicles.php" class="btn">Vehicles</a>
+    <a href="contact.php" class="btn">Contact</a>
+    <a href="about.php" class="btn">About</a>
+  </div>
+</div>
 
-    <div class="collapse navbar-collapse" id="navMenu">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="our_vehicles.php">Vehicles</a></li>
-        <li class="nav-item"><a class="nav-link" href="contact.php">Contact</a></li>
-        <li class="nav-item"><a class="nav-link btn btn-outline-success px-3 ms-2" href="user/login.php">Login</a></li>
-      </ul>
+<div class="container py-4">
+  <h2 class="text-center mb-4">Explore Our Vehicles</h2>
+<div class="container">
+  <div class="row gy-4 align-items-center justify-content-between mb-4">
+    <!-- Search Input -->
+    <div class="col-md-4">
+      <div class="input-container">
+        <input
+          class="input"
+          id="searchInput"
+          type="text"
+          placeholder="Search vehicles..."
+        />
+      </div>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="col-md-4 d-flex justify-content-center">
+      <div class="radio-inputs">
+        <label>
+          <input type="radio" class="radio-input" name="categoryFilter" value="all" checked>
+          <span class="radio-tile">
+            <i class="fas fa-list"></i>
+            <span>All</span>
+          </span>
+        </label>
+        <label>
+          <input type="radio" class="radio-input" name="categoryFilter" value="car">
+          <span class="radio-tile">
+            <i class="fas fa-car"></i>
+            <span>Car</span>
+          </span>
+        </label>
+        <label>
+          <input type="radio" class="radio-input" name="categoryFilter" value="bike">
+          <span class="radio-tile">
+            <i class="fas fa-motorcycle"></i>
+            <span>Bike</span>
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Sort Dropdown -->
+    <div class="col-md-3 d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
+<div class="menu">
+  <div class="item">
+    <a href="#" class="link">
+      <span> Sort By </span>
+      <svg viewBox="0 0 360 360" xml:space="preserve">
+        <path d="M325.607,79.393c-5.857-5.857-15.355-5.858-21.213,0.001l-139.39,139.393L25.607,79.393c-5.857-5.857-15.355-5.858-21.213,0.001c-5.858,5.858-5.858,15.355,0,21.213l150.004,150c2.813,2.813,6.628,4.393,10.606,4.393s7.794-1.581,10.606-4.394l149.996-150C331.465,94.749,331.465,85.251,325.607,79.393z"/>
+      </svg>
+    </a>
+    <div class="submenu">
+      <div class="submenu-item"><a href="#" class="submenu-link" data-sort="price-asc">Price: Low to High</a></div>
+      <div class="submenu-item"><a href="#" class="submenu-link" data-sort="price-desc">Price: High to Low</a></div>
+      <div class="submenu-item"><a href="#" class="submenu-link" data-sort="name-asc">Name: A-Z</a></div>
+      <div class="submenu-item"><a href="#" class="submenu-link" data-sort="name-desc">Name: Z-A</a></div>
     </div>
   </div>
-</nav>
-
-<div class="container py-5">
-    <h2 class="text-center mb-4" data-aos="fade-down">🚘 Explore Our Vehicles</h2>
-
-    <form method="GET" class="row g-2 mb-4" data-aos="fade-up">
-        <div class="col-md-3">
-            <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" class="form-control" placeholder="Search by name">
-        </div>
-        <div class="col-md-2">
-            <select name="category" class="form-control">
-                <option value="">All Categories</option>
-                <option value="car" <?= $category == 'car' ? 'selected' : '' ?>>Car</option>
-                <option value="bike" <?= $category == 'bike' ? 'selected' : '' ?>>Bike</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <select name="subcategory" class="form-control">
-                <option value="">All Subcategories</option>
-                <?php
-                $subRes = $conn->query("SELECT DISTINCT subcategory FROM vehicles WHERE subcategory IS NOT NULL AND subcategory != ''");
-                while ($row = $subRes->fetch_assoc()):
-                ?>
-                    <option value="<?= $row['subcategory'] ?>" <?= $subcategory == $row['subcategory'] ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($row['subcategory']) ?>
-                    </option>
-                <?php endwhile; ?>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <select name="sort" class="form-control">
-                <option value="">Sort</option>
-                <option value="price_asc" <?= $sort == 'price_asc' ? 'selected' : '' ?>>Price: Low → High</option>
-                <option value="price_desc" <?= $sort == 'price_desc' ? 'selected' : '' ?>>Price: High → Low</option>
-                <option value="name_asc" <?= $sort == 'name_asc' ? 'selected' : '' ?>>Name: A-Z</option>
-                <option value="name_desc" <?= $sort == 'name_desc' ? 'selected' : '' ?>>Name: Z-A</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
-        </div>
-    </form>
-
-    <div class="row">
-        <?php if ($result->num_rows > 0): ?>
-            <?php $delay = 0; while ($row = $result->fetch_assoc()): $delay += 50; ?>
-                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="<?= $delay ?>">
-                    <div class="card h-100 shadow-sm">
-                        <img src="uploads/<?= $row['image_path'] ?>" class="card-img-top" alt="<?= $row['name'] ?>">
-                        <div class="card-body d-flex flex-column justify-content-between">
-    <div>
-        <h5 class="card-title"><?= htmlspecialchars($row['name']) ?></h5>
-        <span class="badge bg-secondary category-badge">
-            <?= $row['category'] == 'car' ? '🚗 Car' : '🏍️ Bike' ?> - <?= ucfirst($row['subcategory']) ?>
-        </span>
-        <p class="text-muted mt-2" style="font-size: 0.9rem;">
-            ₹<?= $row['price_per_day'] ?>/day
-        </p>
-    </div>
-
-<?php
-$features = array_filter(array_map('trim', explode(',', $row['features'])));
-if (count($features) > 0): ?>
-    <ul class="small ps-3 mb-2 text-muted">
-        <?php foreach (array_slice($features, 0, 2) as $feature): ?>
-            <li><?= htmlspecialchars($feature) ?></li>
-        <?php endforeach; ?>
-    </ul>
-<?php endif; ?>
-
-<a href="details.php?id=<?= $row['id'] ?>" class="btn btn-outline-primary w-100">View Details</a>
-
 </div>
 
-                    </div>
-                </div>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <div class="col-12 text-center">
-                <div class="alert alert-warning">No vehicles found.</div>
+    </div>
+  </div>
+</div>
+
+
+
+
+  <!-- Vehicle Grid -->
+  <div class="row" id="vehicleGrid">
+    <?php while ($row = $vehicles->fetch_assoc()): ?>
+      <div class="col-md-4 mb-4 vehicle-card" data-category="<?= htmlspecialchars($row['category']) ?>">
+        <div class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              
+              <img src="uploads/<?= $row['image_path'] ?>" alt="Image" class="img-fluid " style="height: 150px;">
+              <h5><?= htmlspecialchars($row['name']) ?></h5>
+              <p class="mt-2 text-muted text-uppercase small"><?= htmlspecialchars($row['subcategory']) ?></p>
+              <p><strong>₹<?= $row['price_per_day'] ?>/day</strong></p>
             </div>
-        <?php endif; ?>
-    </div>
+            <div class="flip-card-back d-flex flex-column justify-content-center">
+              <h6>Features:</h6>
+              <p class="small"><?= nl2br(htmlspecialchars($row['features'])) ?></p>
+              <h6>Ready For Ride!</h6>
+              
+              <a href="book.php?vehicle_id=<?= $row['id'] ?>" class="btn btn-light mt-2">Book Now</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    <?php endwhile; ?>
+  </div>
+</div></div>
 
-    <!-- Pagination -->
-    <?php if ($totalPages > 1): ?>
-        <nav class="mt-4">
-            <ul class="pagination justify-content-center">
-                <?php for ($p = 1; $p <= $totalPages; $p++): ?>
-                    <li class="page-item <?= $p == $page ? 'active' : '' ?>">
-                        <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $p])) ?>">
-                            <?= $p ?>
-                        </a>
-                    </li>
-                <?php endfor; ?>
-            </ul>
-        </nav>
-    <?php endif; ?>
-</div>
+<script>
+  const radios = document.querySelectorAll('input[name="categoryFilter"]');
+  const vehicleCards = document.querySelectorAll('.vehicle-card');
+  const searchInput = document.getElementById('searchInput');
+  const sortLinks = document.querySelectorAll('.submenu-link');
 
-<!-- JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-<script>AOS.init();</script>
+  // Handle category filter and search
+  radios.forEach(radio => radio.addEventListener('change', filterVehicles));
+  searchInput.addEventListener('input', filterVehicles);
+
+  function filterVehicles() {
+    const selectedCategory = document.querySelector('input[name="categoryFilter"]:checked').value.toLowerCase();
+    const searchTerm = searchInput.value.toLowerCase();
+
+    vehicleCards.forEach(card => {
+      const name = card.querySelector('h5')?.textContent.toLowerCase() || '';
+      const subcat = card.querySelector('p.text-uppercase')?.textContent.toLowerCase() || '';
+      const category = card.dataset.category.toLowerCase();
+
+      const matchesSearch = name.includes(searchTerm) || subcat.includes(searchTerm);
+      const matchesCategory = selectedCategory === 'all' || category === selectedCategory;
+
+      card.style.display = (matchesSearch && matchesCategory) ? 'block' : 'none';
+    });
+  }
+
+  // Handle sorting from submenu
+  sortLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const sortType = link.dataset.sort;
+      sortVehicles(sortType);
+    });
+  });
+
+  function sortVehicles(sortBy) {
+    const container = document.getElementById('vehicleGrid');
+    const cards = Array.from(container.querySelectorAll('.vehicle-card'));
+
+    cards.sort((a, b) => {
+      const priceA = parseFloat(a.querySelector('strong')?.textContent.replace(/[^\d.]/g, '')) || 0;
+      const priceB = parseFloat(b.querySelector('strong')?.textContent.replace(/[^\d.]/g, '')) || 0;
+      const nameA = a.querySelector('h5')?.textContent.toLowerCase() || '';
+      const nameB = b.querySelector('h5')?.textContent.toLowerCase() || '';
+
+      switch (sortBy) {
+        case 'price-asc': return priceA - priceB;
+        case 'price-desc': return priceB - priceA;
+        case 'name-asc': return nameA.localeCompare(nameB);
+        case 'name-desc': return nameB.localeCompare(nameA);
+        default: return 0;
+      }
+    });
+
+    // Re-append sorted cards
+    container.innerHTML = '';
+    cards.forEach(card => container.appendChild(card));
+  }
+</script>
+
+
 
 </body>
 </html>

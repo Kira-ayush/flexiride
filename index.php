@@ -723,32 +723,43 @@ session_start();
   </section>
   <!-- Footer End -->
   <!-- Login Modal -->
+<!-- Login Modal -->
 <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content rounded-4 shadow">
-      <div class="modal-header bg-dark text-white">
-        <h5 class="modal-title" id="loginModalLabel">Login to FlexiRide</h5>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow rounded-4">
+      <div class="modal-header bg-dark text-white rounded-top-4">
+        <h5 class="modal-title" id="loginModalLabel">Welcome Back</h5><br>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="user/login_process.php" method="POST">
+      <form action="user/login_process.php" method="POST" class="px-3 py-2">
         <div class="modal-body">
+          <!-- Error Alert -->
+          <?php if (!empty($_SESSION['login_error'])): ?>
+            <div class="alert alert-danger py-2">
+              <?= htmlspecialchars($_SESSION['login_error']) ?>
+            </div>
+            <?php unset($_SESSION['login_error']); ?>
+          <?php endif; ?>
+
           <div class="mb-3">
-            <label for="email" class="form-label">Email or Phone</label>
-            <input type="text" class="form-control" name="email_or_phone" id="email" placeholder="Enter email or phone" required>
+            <input type="text" name="email_or_phone" class="form-control rounded-pill px-4 py-2" placeholder="Email or Phone" required>
           </div>
           <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" name="password" id="password" placeholder="Enter password" required>
+            <input type="password" name="password" class="form-control rounded-pill px-4 py-2" placeholder="Password" required>
+          </div>
+          <div class="text-end mb-2">
+            <a href="#" class="text-decoration-none small text-muted">Forgot password?</a><br>
           </div>
         </div>
-        <div class="modal-footer d-flex flex-column">
-          <button type="submit" class="btn btn-primary w-100 mb-2">Login</button>
-          <a href="user/register.php" class="btn btn-outline-secondary w-100">Don't have an account? Register</a>
+        <div class="modal-footer d-flex flex-column gap-2 px-4 pb-4">
+          <button type="submit" class="btn w-100 rounded-pill text-white" style="background-color: teal;">Log in</button>
+          <a href="user/register.php" class="btn btn-outline-secondary w-100 rounded-pill">Don't have an account? Register</a>
         </div>
       </form>
     </div>
   </div>
 </div>
+
 
  
 </body>
